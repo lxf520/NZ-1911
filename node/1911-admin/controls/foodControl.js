@@ -7,9 +7,9 @@ let insertFood = async (obj)=>{
   return result
 }
 // 查询全部菜品
-let findFood  = async ()=>{
+let findFood  = async (_id)=>{
   
-  let result = await FoodModel.find()
+  let result = await FoodModel.find({_id})
   return result
 }
 // 删除菜品 
@@ -39,11 +39,16 @@ let  findFoodByType = async (foodType) =>{
   return result
 }
 // 关键字查询
-let findFoodByKw = async (kw)=>{
+let findFoodByKw = async (kw,page,pageSize)=>{
   // 通过正则表达式匹配关键字
   let regex = new RegExp(kw)
-  let result =await  FoodModel.find({$or:[{desc:{$regex:regex}},{name:{$regex:regex}}] })
-  return  result
+  // 满足条件的所有数据
+  let allFood =await  FoodModel.find({$or:[{desc:{$regex:regex}},{name:{$regex:regex}}] })
+  let allCount= allFood.length
+  // 分页后满足关键字的数据
+  let result= await FoodModel.find({$or:[{desc:{$regex:regex}},{name:{$regex:regex}}] })
+  .skip(Number((page-1)*pageSize)).limit(Number(pageSize))
+  return  {result,allCount}
 }
 module.exports={
   findFoodByKw,
